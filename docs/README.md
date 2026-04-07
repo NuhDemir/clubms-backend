@@ -56,3 +56,7 @@ clubms-backend/
 ## Dokümantasyon Yönetim Notu
 
 Bu yapı, ileride her konu başlığı için ayrı dosyalar eklenerek büyütülmelidir. Yeni dokümanlar ilgili numaralı klasör altında açılmalı ve kısa, teknik, versiyonlanabilir formatta tutulmalıdır.
+
+## Son Teknik Kayıt
+
+- `06-history/2026-04-08-backend-bootstrap-ve-prisma-gecisi.md`
