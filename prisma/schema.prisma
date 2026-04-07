@@ -1,0 +1,34 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// IDENTITY CONTEXT
+model IdentityUser {
+  id              String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  studentNumber   String              @unique @map("student_number") @db.VarChar(20)
+  email           String              @unique @db.VarChar(255)
+  fullName        String              @map("full_name") @db.VarChar(100)
+  firebaseUid     String              @unique @map("firebase_uid") @db.VarChar(128)
+  emailVerified   Boolean             @default(false) @map("email_verified")
+  status          String              @default("ACTIVE") @db.VarChar(20)
+  createdAt       DateTime            @default(now()) @map("created_at")
+  updatedAt       DateTime            @updatedAt @map("updated_at")
+  
+  globalRole      IdentityGlobalRole?
+
+  @@map("identity_users")
+}
+
+model IdentityGlobalRole {
+  id        Int          @id @default(autoincrement())
+  userId    String       @unique @map("user_id") @db.Uuid
+  roleName  String       @map("role_name") @db.VarChar(50) 
+  
+  user      IdentityUser @relation(fields: [userId], references: [id])
+
+  @@map("identity_global_roles")
+}
