@@ -129,3 +129,72 @@ model EventsEventTag {
   @@id([eventId, tagId])
   @@map("events_event_tags")
 }
+
+/// INFRASTRUCTURE CONTEXT - Outbox Pattern
+model InfrastructureOutboxEvent {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  aggregateType String   @map("aggregate_type") @db.VarChar(50)
+  aggregateId   String   @map("aggregate_id") @db.Uuid
+  eventType     String   @map("event_type") @db.VarChar(100)
+  payload       Json
+  published     Boolean  @default(false)
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@index([published, createdAt])
+  @@map("infrastructure_outbox_events")
+}
+
+/// ANALYTICS CONTEXT - Snapshot Pattern
+model AnalyticsClubSnapshot {
+  id                    String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  clubId                String   @map("club_id") @db.Uuid // SOFT FK
+  snapshotDate          DateTime @map("snapshot_date") @db.Date
+  totalMembers          Int      @map("total_members")
+  activeMembersCount    Int      @map("active_members_count")
+  pendingApplications   Int      @map("pending_applications")
+  totalEvents           Int      @map("total_events")
+  publishedEvents       Int      @map("published_events")
+  completedEvents       Int      @map("completed_events")
+  totalAttendances      Int      @map("total_attendances")
+  averageAttendanceRate Decimal  @map("average_attendance_rate") @db.Decimal(5, 2)
+  growthRate            Decimal? @map("growth_rate") @db.Decimal(5, 2)
+  createdAt             DateTime @default(now()) @map("created_at")
+
+  @@unique([clubId, snapshotDate])
+  @@index([clubId, snapshotDate])
+  @@map("analytics_club_snapshots")
+}
+
+model AnalyticsEventSnapshot {
+  id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  eventId           String   @map("event_id") @db.Uuid // SOFT FK
+  snapshotDate      DateTime @map("snapshot_date") @db.Date
+  capacity          Int
+  totalAttendees    Int      @map("total_attendees")
+  attendanceRate    Decimal  @map("attendance_rate") @db.Decimal(5, 2)
+  checkInQRCount    Int      @map("check_in_qr_count")
+  checkInGPSCount   Int      @map("check_in_gps_count")
+  checkInManualCount Int     @map("check_in_manual_count")
+  createdAt         DateTime @default(now()) @map("created_at")
+
+  @@unique([eventId, snapshotDate])
+  @@index([eventId, snapshotDate])
+  @@map("analytics_event_snapshots")
+}
+
+model AnalyticsGlobalSnapshot {
+  id                  String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  snapshotDate        DateTime @unique @map("snapshot_date") @db.Date
+  totalUsers          Int      @map("total_users")
+  activeUsers         Int      @map("active_users")
+  totalClubs          Int      @map("total_clubs")
+  activeClubs         Int      @map("active_clubs")
+  totalEvents         Int      @map("total_events")
+  publishedEvents     Int      @map("published_events")
+  totalAttendances    Int      @map("total_attendances")
+  averageEventCapacity Decimal @map("average_event_capacity") @db.Decimal(8, 2)
+  createdAt           DateTime @default(now()) @map("created_at")
+
+  @@index([snapshotDate])
+  @@map("analytics_global_snapshots")
+}
