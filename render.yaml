@@ -59,6 +59,7 @@ services:
     plan: free
     region: frankfurt
     maxmemoryPolicy: allkeys-lru
+    ipAllowList: []
 
 databases:
   - name: clubms-db
