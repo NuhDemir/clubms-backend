@@ -46,13 +46,6 @@ services:
     
     autoDeploy: true
 
-  # PostgreSQL Database
-  - type: pserv
-    name: clubms-db
-    env: docker
-    plan: free
-    region: frankfurt
-
   # Redis Cache
   - type: redis
     name: clubms-redis
