@@ -54,4 +54,21 @@ export class PrismaUserRepository implements IUserRepository {
       }
     });
   }
+
+  async findAll(): Promise<UserEntity[]> {
+    const records = await prisma.identityUser.findMany({
+      orderBy: { createdAt: 'desc' }
+    });
+    return records.map(record => this.toEntity(record));
+  }
+
+  async update(user: UserEntity): Promise<void> {
+    await prisma.identityUser.update({
+      where: { id: user.id },
+      data: {
+        emailVerified: user.emailVerified,
+        status: user.status
+      }
+    });
+  }
 }
