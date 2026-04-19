@@ -14,7 +14,11 @@
       "@modules/*": ["src/modules/*"],
       "@core/*": ["src/core/*"],
       "@shared/*": ["src/shared/*"]
-    }
+    },
+    "typeRoots": ["./node_modules/@types", "./src/types"]
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*"],
+  "ts-node": {
+    "files": true
+  }
 }
