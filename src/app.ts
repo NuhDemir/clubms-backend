@@ -24,6 +24,15 @@ app.use((req, res, next) => {
 // Swagger Documentation
 setupSwagger(app as any);
 
+// Serve Postman collection
+app.get('/api-docs/postman', (req, res) => {
+  res.sendFile('api-docs/postman/ClubMS-API.postman_collection.json', { root: '.' });
+});
+
+app.get('/api-docs/postman/environment', (req, res) => {
+  res.sendFile('api-docs/postman/ClubMS-Environment.postman_environment.json', { root: '.' });
+});
+
 // Healthcheck
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'UP', message: 'ClubMS API is running' });

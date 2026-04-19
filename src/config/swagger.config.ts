@@ -69,8 +69,8 @@ Tüm hatalar standart formatta döner:
                 description: 'Development Server'
             },
             {
-                url: 'https://api.clubms.com',
-                description: 'Production Server'
+                url: 'https://clubms-backend-x3pa.onrender.com',
+                description: 'Production Server (Render)'
             }
         ],
         tags: [
