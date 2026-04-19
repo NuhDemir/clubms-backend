@@ -210,9 +210,23 @@ Detaylı adımlar için: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)
 
 ## 📚 API Dokümantasyonu
 
-### Swagger UI (İnteraktif)
+### Modern Dokümantasyon Arayüzleri
 
-Sunucu çalışırken:
+API dokümantasyonuna 3 farklı arayüzden erişebilirsiniz:
+
+#### 1. 🎨 Modern Landing Page
+
+```
+http://localhost:3000/api-docs/modern
+```
+
+**Özellikler:**
+- Responsive tasarım
+- Tüm dokümantasyon seçeneklerine hızlı erişim
+- API özellikleri özeti
+- Mobil uyumlu
+
+#### 2. 🚀 Swagger UI (İnteraktif)
 
 ```
 http://localhost:3000/api-docs
@@ -223,8 +237,45 @@ http://localhost:3000/api-docs
 - Request/Response şemalarını inceleme
 - Doğrudan tarayıcıdan API test etme
 - Authentication token yönetimi
+- Try it out özelliği
+- Syntax highlighting
+
+#### 3. 📖 Redoc (Temiz & Responsive)
+
+```
+http://localhost:3000/api-docs/redoc
+```
+
+**Özellikler:**
+- Temiz, modern tasarım
+- Mobil uyumlu
+- Kolay okunabilir
+- Hızlı arama
+- Kod örnekleri
+- Responsive layout
+
+### OpenAPI Spesifikasyonu
+
+**JSON Format:**
+```bash
+curl http://localhost:3000/api-docs.json > openapi.json
+```
+
+**Kullanım Alanları:**
+- Kod generation (client SDK'lar)
+- API testing tools
+- Mock server oluşturma
+- CI/CD entegrasyonu
 
 ### Postman Collection
+
+**Web'den İndir:**
+```
+http://localhost:3000/api-docs/postman
+http://localhost:3000/api-docs/postman/environment
+```
+
+**Manuel Import:**
 
 1. Postman'i açın
 2. Import > File
@@ -236,11 +287,9 @@ http://localhost:3000/api-docs
 - Register/Login sonrası token otomatik kaydedilir
 - Tüm isteklerde otomatik eklenir
 
-### OpenAPI JSON
-
-```bash
-curl http://localhost:3000/api-docs.json > openapi.json
-```
+**Production URL:**
+- Base URL: `https://clubms-backend-x3pa.onrender.com`
+- Postman environment'ı güncelleyin
 
 Detaylı dokümantasyon için: [api-docs/README.md](api-docs/README.md)
 

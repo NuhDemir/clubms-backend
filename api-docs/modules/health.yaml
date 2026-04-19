@@ -1,0 +1,361 @@
+paths:
+  /health:
+    get:
+      tags:
+        - Health
+      summary: Basic Health Check
+      description: Basit API sağlık kontrolü
+      responses:
+        '200':
+          description: API çalışıyor
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: UP
+                  message:
+                    type: string
+                    example: ClubMS API is running
+                  timestamp:
+                    type: string
+                    format: date-time
+
+  /health/detailed:
+    get:
+      tags:
+        - Health
+      summary: Detailed Health Check
+      description: Tüm sistem bileşenlerinin detaylı sağlık kontrolü (API, Database, Redis)
+      responses:
+        '200':
+          description: Tüm bileşenler çalışıyor
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [UP, DEGRADED, DOWN]
+                    example: UP
+                  timestamp:
+                    type: string
+                    format: date-time
+                  checks:
+                    type: object
+                    properties:
+                      api:
+                        type: object
+                        properties:
+                          status:
+                            type: string
+                            example: UP
+                          message:
+                            type: string
+                            example: API server is running
+                      database:
+                        type: object
+                        properties:
+                          status:
+                            type: string
+                            example: UP
+                          message:
+                            type: string
+                            example: Database connection successful
+                          responseTime:
+                            type: number
+                            example: 15
+                      redis:
+                        type: object
+                        properties:
+                          status:
+                            type: string
+                            example: UP
+                          message:
+                            type: string
+                            example: Redis connection successful
+                          responseTime:
+                            type: number
+                            example: 5
+        '503':
+          description: Bir veya daha fazla bileşen çalışmıyor
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: DEGRADED
+                  timestamp:
+                    type: string
+                    format: date-time
+                  checks:
+                    type: object
+
+  /health/database:
+    get:
+      tags:
+        - Health
+      summary: Database Health Check
+      description: PostgreSQL veritabanı bağlantısını ve bilgilerini kontrol eder
+      responses:
+        '200':
+          description: Database bağlantısı başarılı
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: UP
+                  message:
+                    type: string
+                    example: Database connection successful
+                  responseTime:
+                    type: number
+                    example: 15
+                  details:
+                    type: object
+                    properties:
+                      database:
+                        type: string
+                        example: clubms_prod
+                      user:
+                        type: string
+                        example: postgres
+                      version:
+                        type: string
+                        example: PostgreSQL 15.3
+                      sizeBytes:
+                        type: number
+                        example: 8388608
+                      sizeMB:
+                        type: string
+                        example: "8.00"
+                  timestamp:
+                    type: string
+                    format: date-time
+        '503':
+          description: Database bağlantısı başarısız
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: DOWN
+                  message:
+                    type: string
+                    example: Database connection failed
+                  error:
+                    type: string
+                  timestamp:
+                    type: string
+                    format: date-time
+
+  /health/database/tables:
+    get:
+      tags:
+        - Health
+      summary: Database Tables Info
+      description: Veritabanındaki tüm tabloları ve boyutlarını listeler
+      responses:
+        '200':
+          description: Tablo listesi başarıyla alındı
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: UP
+                  message:
+                    type: string
+                    example: Database tables retrieved successfully
+                  count:
+                    type: number
+                    example: 15
+                  tables:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          example: identity_users
+                        size:
+                          type: string
+                          example: 128 kB
+                  timestamp:
+                    type: string
+                    format: date-time
+        '503':
+          description: Tablo listesi alınamadı
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: DOWN
+                  message:
+                    type: string
+                  error:
+                    type: string
+                  timestamp:
+                    type: string
+                    format: date-time
+
+  /health/redis:
+    get:
+      tags:
+        - Health
+      summary: Redis Health Check
+      description: Redis bağlantısını ve bilgilerini kontrol eder
+      responses:
+        '200':
+          description: Redis bağlantısı başarılı
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: UP
+                  message:
+                    type: string
+                    example: Redis connection successful
+                  responseTime:
+                    type: number
+                    example: 5
+                  details:
+                    type: object
+                    properties:
+                      ping:
+                        type: string
+                        example: PONG
+                      version:
+                        type: string
+                        example: 7.0.11
+                      memoryUsed:
+                        type: string
+                        example: 2.5M
+                      connectedClients:
+                        type: string
+                        example: "3"
+                      uptimeDays:
+                        type: string
+                        example: "15"
+                      readWriteTest:
+                        type: string
+                        example: PASS
+                  timestamp:
+                    type: string
+                    format: date-time
+        '503':
+          description: Redis bağlantısı başarısız
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: DOWN
+                  message:
+                    type: string
+                    example: Redis connection failed
+                  error:
+                    type: string
+                  timestamp:
+                    type: string
+                    format: date-time
+
+  /health/redis/keys:
+    get:
+      tags:
+        - Health
+      summary: Redis Keys Info
+      description: Redis'teki key'leri ve bilgilerini listeler
+      parameters:
+        - in: query
+          name: pattern
+          schema:
+            type: string
+            default: "*"
+          description: Key pattern (örn. "bull:*", "user:*")
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 100
+          description: Maksimum döndürülecek key sayısı
+      responses:
+        '200':
+          description: Redis key'leri başarıyla alındı
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: UP
+                  message:
+                    type: string
+                    example: Redis keys retrieved successfully
+                  pattern:
+                    type: string
+                    example: "*"
+                  totalKeys:
+                    type: number
+                    example: 250
+                  returnedKeys:
+                    type: number
+                    example: 100
+                  keys:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        key:
+                          type: string
+                          example: "bull:email:1"
+                        type:
+                          type: string
+                          example: hash
+                        ttl:
+                          type: string
+                          example: "3600s"
+                        memoryBytes:
+                          type: number
+                          example: 512
+                  timestamp:
+                    type: string
+                    format: date-time
+        '503':
+          description: Redis key'leri alınamadı
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: DOWN
+                  message:
+                    type: string
+                  error:
+                    type: string
+                  timestamp:
+                    type: string
+                    format: date-time

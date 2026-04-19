@@ -4,6 +4,7 @@ import { container } from './core/container/container';
 import { IdentityRouter } from './modules/identity/identity.router';
 import { ClubsRouter } from './modules/clubs/clubs.router';
 import { EventsRouter } from './modules/events/events.router';
+import { InfrastructureRouter } from './modules/infrastructure/infrastructure.router';
 import { createAnalyticsRouter } from './modules/analytics/analytics.router';
 import { AnalyticsController } from './modules/analytics/controllers/analytics.controller';
 import { globalErrorFilter } from './core/filters/globalError.filter';
@@ -24,6 +25,9 @@ app.use((req, res, next) => {
 // Swagger Documentation
 setupSwagger(app as any);
 
+// Infrastructure routes (health checks)
+app.use('/', InfrastructureRouter);
+
 // Serve Postman collection
 app.get('/api-docs/postman', (req, res) => {
   res.sendFile('api-docs/postman/ClubMS-API.postman_collection.json', { root: '.' });
@@ -33,7 +37,7 @@ app.get('/api-docs/postman/environment', (req, res) => {
   res.sendFile('api-docs/postman/ClubMS-Environment.postman_environment.json', { root: '.' });
 });
 
-// Healthcheck
+// Healthcheck (deprecated - use /health instead)
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'UP', message: 'ClubMS API is running' });
 });

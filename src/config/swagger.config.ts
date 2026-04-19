@@ -75,6 +75,10 @@ Tüm hatalar standart formatta döner:
         ],
         tags: [
             {
+                name: 'Health',
+                description: 'Sistem sağlık kontrolleri (Database, Redis, API)'
+            },
+            {
                 name: 'Auth',
                 description: 'Kimlik doğrulama ve kullanıcı yönetimi'
             },
