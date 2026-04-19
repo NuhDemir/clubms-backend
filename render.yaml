@@ -20,11 +20,8 @@ services:
           name: clubms-db
           property: connectionString
       
-      - key: REDIS_URL
-        fromService:
-          type: redis
-          name: clubms-redis
-          property: connectionString
+      # Redis - Manuel olarak eklenecek (mevcut Redis instance kullanılacak)
+      # Render Dashboard'dan manuel ekleyin
       
       # Firebase credentials (add these in Render dashboard)
       - key: FIREBASE_PROJECT_ID
@@ -45,14 +42,6 @@ services:
         value: "*"
     
     autoDeploy: true
-
-  # Redis Cache
-  - type: redis
-    name: clubms-redis
-    plan: free
-    region: frankfurt
-    maxmemoryPolicy: allkeys-lru
-    ipAllowList: []
 
 databases:
   - name: clubms-db
