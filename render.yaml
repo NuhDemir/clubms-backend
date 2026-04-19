@@ -20,23 +20,11 @@ services:
           name: clubms-db
           property: connectionString
       
-      - key: REDIS_HOST
+      - key: REDIS_URL
         fromService:
           type: redis
           name: clubms-redis
-          property: host
-      
-      - key: REDIS_PORT
-        fromService:
-          type: redis
-          name: clubms-redis
-          property: port
-      
-      - key: REDIS_PASSWORD
-        fromService:
-          type: redis
-          name: clubms-redis
-          property: password
+          property: connectionString
       
       # Firebase credentials (add these in Render dashboard)
       - key: FIREBASE_PROJECT_ID
@@ -64,7 +52,6 @@ services:
     env: docker
     plan: free
     region: frankfurt
-    ipAllowList: []
 
   # Redis Cache
   - type: redis
@@ -72,7 +59,6 @@ services:
     plan: free
     region: frankfurt
     maxmemoryPolicy: allkeys-lru
-    ipAllowList: []
 
 databases:
   - name: clubms-db
