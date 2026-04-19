@@ -4,6 +4,7 @@ import { IClubRepository } from '../interfaces/IClubRepository';
 import { IUserRepository } from '../../identity/interfaces/IUserRepository';
 import { MembershipEntity, MembershipRole } from '../domain/Membership.entity';
 import { AppError } from '../../infrastructure/errors/AppError';
+import { domainEvents } from '../../notifications/listeners/event.listener';
 
 export interface JoinClubDto {
     clubId: string;
@@ -112,6 +113,14 @@ export class MembershipsService {
         // 4. Kaydet
         await this.membershipRepository.update(membership);
 
+        // 5. Domain event emit et (Outbox pattern)
+        const club = await this.clubRepository.findById(clubId);
+        domainEvents.emit('membership.approved', {
+            userId: targetUserId,
+            clubId: clubId,
+            clubName: club?.name || 'Bilinmeyen Kulüp'
+        });
+
         return membership;
     }
 
@@ -142,6 +151,14 @@ export class MembershipsService {
 
         // 4. Sil
         await this.membershipRepository.delete(clubId, targetUserId);
+
+        // 5. Domain event emit et (Outbox pattern)
+        const club = await this.clubRepository.findById(clubId);
+        domainEvents.emit('membership.rejected', {
+            userId: targetUserId,
+            clubId: clubId,
+            clubName: club?.name || 'Bilinmeyen Kulüp'
+        });
     }
 
     async changeRole(dto: ChangeRoleDto): Promise<MembershipEntity> {

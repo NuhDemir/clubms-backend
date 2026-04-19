@@ -129,3 +129,17 @@ model EventsEventTag {
   @@id([eventId, tagId])
   @@map("events_event_tags")
 }
+
+/// INFRASTRUCTURE CONTEXT - Outbox Pattern
+model InfrastructureOutboxEvent {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  aggregateType String   @map("aggregate_type") @db.VarChar(50)
+  aggregateId   String   @map("aggregate_id") @db.Uuid
+  eventType     String   @map("event_type") @db.VarChar(100)
+  payload       Json
+  published     Boolean  @default(false)
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@index([published, createdAt])
+  @@map("infrastructure_outbox_events")
+}

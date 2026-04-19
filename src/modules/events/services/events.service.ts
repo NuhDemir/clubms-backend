@@ -7,6 +7,7 @@ import { EventEntity } from '../domain/Event.entity';
 import { AppError } from '../../infrastructure/errors/AppError';
 import { IEventServicePublic } from '../interfaces/IEventServicePublic';
 import { IAttendanceRepository } from '../interfaces/IAttendanceRepository';
+import { domainEvents } from '../../notifications/listeners/event.listener';
 
 export interface CreateEventDto {
     clubId: string;
@@ -204,6 +205,15 @@ export class EventsService implements IEventServicePublic {
         // 4. Kaydet
         await this.eventRepository.update(event);
 
+        // 5. Domain event emit et (Outbox pattern)
+        const clubName = await this.clubServicePublic.getClubName(event.clubId);
+        domainEvents.emit('event.published', {
+            eventId: event.id,
+            eventTitle: event.title,
+            clubId: event.clubId,
+            clubName: clubName || 'Bilinmeyen Kulüp'
+        });
+
         return event;
     }
 
@@ -237,7 +247,14 @@ export class EventsService implements IEventServicePublic {
         // 4. Kaydet
         await this.eventRepository.update(event);
 
-        // TODO: Faz 5 - Bildirim gönder (Outbox pattern)
+        // 5. Domain event emit et (Outbox pattern)
+        const clubName = await this.clubServicePublic.getClubName(event.clubId);
+        domainEvents.emit('event.cancelled', {
+            eventId: event.id,
+            eventTitle: event.title,
+            clubId: event.clubId,
+            clubName: clubName || 'Bilinmeyen Kulüp'
+        });
 
         return event;
     }
