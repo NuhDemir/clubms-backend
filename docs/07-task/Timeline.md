@@ -21,12 +21,12 @@
 
 | Görev | Kişi |
 |-------|------|
-| Proje iskeleti, Docker, Prisma, tsconfig | Nuh |
-| Identity schema migration | Ferhan |
-| `UserEntity`, `IUserRepository` (domain katman) | Ferhan |
+| Proje iskeleti, Docker, Prisma, tsconfig | Selim,Nuh |
+| Identity schema migration | Nuh |
+| `UserEntity`, `IUserRepository` (domain katman) | Nuh |
 | `AuthService` — register + Firebase entegrasyonu | Ferhan |
-| `PrismaUserRepository` implementasyonu | Ferhan |
-| Auth middleware (Firebase token doğrulama) | Nuh |
+| `PrismaUserRepository` implementasyonu | Nuh |
+| Auth middleware (Firebase token doğrulama) | Ferhan |
 | Global error handler, AppError sınıfı | Nuh |
 | DI Container (Awilix) kurulumu | Selim |
 | Frontend proje iskeleti (Vite + React + TS) | Ibrahim |
@@ -38,7 +38,7 @@
 
 ---
 
-### Sprint 2 — Clubs Modülü (15.04 – 28.04)
+### Sprint 2 — Clubs Modülü (15.04 – 25.04)
 
 | Görev | Kişi |
 |-------|------|
@@ -57,7 +57,7 @@
 
 ---
 
-### Sprint 3 — Events Modülü (29.04 – 12.05)
+### Sprint 3 — Events Modülü (25.04 – 01.05)
 
 | Görev | Kişi |
 |-------|------|
@@ -77,7 +77,7 @@
 
 ---
 
-### Sprint 4 — QR Yoklama, Analytics & Polish (13.05 – 26.05)
+### Sprint 4 — QR Yoklama, Analytics & Polish (01.05 – 13.05)
 
 | Görev | Kişi |
 |-------|------|
