@@ -22,6 +22,10 @@ import { PrismaAttendanceRepository } from '../../modules/events/repositories/at
 import { EventsService } from '../../modules/events/services/events.service';
 import { AttendanceService } from '../../modules/events/services/attendance.service';
 
+// Analytics
+import { PrismaAnalyticsRepository } from '../../modules/analytics/repositories/analytics.repository';
+import { AnalyticsService } from '../../modules/analytics/services/analytics.service';
+
 const container = createContainer({
   injectionMode: InjectionMode.CLASSIC
 });
@@ -55,6 +59,12 @@ container.register({
   // Events Service — her istekte yeni
   eventsService: asClass(EventsService).scoped(),
   attendanceService: asClass(AttendanceService).scoped(),
+
+  // Analytics Repository — her istekte yeni
+  analyticsRepository: asClass(PrismaAnalyticsRepository).scoped(),
+
+  // Analytics Service — her istekte yeni
+  analyticsService: asClass(AnalyticsService).scoped(),
 });
 
 

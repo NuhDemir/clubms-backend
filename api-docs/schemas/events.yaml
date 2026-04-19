@@ -1,0 +1,239 @@
+components:
+  schemas:
+    # ==================== EVENT SCHEMAS ====================
+    
+    Event:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        clubId:
+          type: string
+          format: uuid
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        title:
+          type: string
+          example: "Hackathon 2024"
+        description:
+          type: string
+          example: "24 saatlik yazılım yarışması"
+        startTime:
+          type: string
+          format: date-time
+          example: "2024-06-01T10:00:00.000Z"
+        endTime:
+          type: string
+          format: date-time
+          example: "2024-06-02T10:00:00.000Z"
+        location:
+          type: string
+          example: "Konferans Salonu A"
+        latitude:
+          type: number
+          format: double
+          nullable: true
+          example: 41.0082
+        longitude:
+          type: number
+          format: double
+          nullable: true
+          example: 28.9784
+        capacity:
+          type: integer
+          nullable: true
+          example: 100
+        currentAttendees:
+          type: integer
+          example: 45
+        imageUrl:
+          type: string
+          format: uri
+          nullable: true
+          example: "https://example.com/event.jpg"
+        status:
+          $ref: '#/components/schemas/EventStatus'
+        version:
+          type: integer
+          example: 1
+        createdAt:
+          type: string
+          format: date-time
+          example: "2024-01-01T00:00:00.000Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2024-01-01T00:00:00.000Z"
+    
+    CreateEventDto:
+      type: object
+      required:
+        - title
+        - description
+        - startTime
+        - endTime
+        - location
+      properties:
+        title:
+          type: string
+          minLength: 3
+          maxLength: 200
+          example: "Hackathon 2024"
+        description:
+          type: string
+          minLength: 10
+          maxLength: 2000
+          example: "24 saatlik yazılım yarışması"
+        startTime:
+          type: string
+          format: date-time
+          example: "2024-06-01T10:00:00.000Z"
+        endTime:
+          type: string
+          format: date-time
+          example: "2024-06-02T10:00:00.000Z"
+        location:
+          type: string
+          minLength: 3
+          maxLength: 200
+          example: "Konferans Salonu A"
+        latitude:
+          type: number
+          format: double
+          nullable: true
+          example: 41.0082
+        longitude:
+          type: number
+          format: double
+          nullable: true
+          example: 28.9784
+        capacity:
+          type: integer
+          minimum: 1
+          nullable: true
+          example: 100
+        imageUrl:
+          type: string
+          format: uri
+          nullable: true
+          example: "https://example.com/event.jpg"
+        tags:
+          type: array
+          items:
+            type: string
+          example: ["teknoloji", "yazılım", "yarışma"]
+    
+    UpdateEventDto:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 3
+          maxLength: 200
+          example: "Hackathon 2024"
+        description:
+          type: string
+          minLength: 10
+          maxLength: 2000
+          example: "24 saatlik yazılım yarışması"
+        startTime:
+          type: string
+          format: date-time
+          example: "2024-06-01T10:00:00.000Z"
+        endTime:
+          type: string
+          format: date-time
+          example: "2024-06-02T10:00:00.000Z"
+        location:
+          type: string
+          minLength: 3
+          maxLength: 200
+          example: "Konferans Salonu A"
+        latitude:
+          type: number
+          format: double
+          nullable: true
+          example: 41.0082
+        longitude:
+          type: number
+          format: double
+          nullable: true
+          example: 28.9784
+        capacity:
+          type: integer
+          minimum: 1
+          nullable: true
+          example: 100
+        imageUrl:
+          type: string
+          format: uri
+          nullable: true
+          example: "https://example.com/event.jpg"
+    
+    # ==================== ATTENDANCE SCHEMAS ====================
+    
+    Attendance:
+      type: object
+      properties:
+        eventId:
+          type: string
+          format: uuid
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        userId:
+          type: string
+          format: uuid
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        checkInMethod:
+          $ref: '#/components/schemas/CheckInMethod'
+        joinedAt:
+          type: string
+          format: date-time
+          example: "2024-01-01T00:00:00.000Z"
+    
+    CheckInQRDto:
+      type: object
+      required:
+        - qrCode
+      properties:
+        qrCode:
+          type: string
+          description: QR kod'dan okunan JSON payload
+          example: '{"eventId":"123","token":"456789","timestamp":1234567890}'
+    
+    CheckInGPSDto:
+      type: object
+      required:
+        - latitude
+        - longitude
+      properties:
+        latitude:
+          type: number
+          format: double
+          example: 41.0082
+        longitude:
+          type: number
+          format: double
+          example: 28.9784
+    
+    QRCodeResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            qrCodeDataURL:
+              type: string
+              description: Base64 encoded QR code image (Data URL)
+              example: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA..."
+            expiresIn:
+              type: integer
+              description: QR kod geçerlilik süresi (saniye)
+              example: 300
+            remainingTime:
+              type: integer
+              description: TOTP window'un kalan süresi (saniye)
+              example: 25

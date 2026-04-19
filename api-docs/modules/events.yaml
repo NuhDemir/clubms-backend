@@ -1,0 +1,507 @@
+paths:
+  /api/v1/clubs/{clubId}/events:
+    get:
+      tags:
+        - Events
+      summary: Kulübün etkinliklerini listele
+      description: Yayınlanmış etkinlikleri getirir
+      security: []
+      parameters:
+        - in: path
+          name: clubId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Kulüp ID
+        - in: query
+          name: status
+          schema:
+            $ref: '#/components/schemas/EventStatus'
+          description: Etkinlik durumu filtresi
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: Etkinlik listesi
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Event'
+
+    post:
+      tags:
+        - Events
+      summary: Yeni etkinlik oluştur
+      description: Sadece kulüp başkanı veya yardımcısı erişebilir
+      parameters:
+        - in: path
+          name: clubId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Kulüp ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateEventDto'
+      responses:
+        '201':
+          description: Etkinlik oluşturuldu
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Etkinlik oluşturuldu"
+                  data:
+                    $ref: '#/components/schemas/Event'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+
+  /api/v1/events/{id}:
+    get:
+      tags:
+        - Events
+      summary: Etkinlik detayı
+      description: Belirli bir etkinliğin bilgilerini getirir
+      security: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Etkinlik ID
+      responses:
+        '200':
+          description: Etkinlik bilgisi
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Event'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    patch:
+      tags:
+        - Events
+      summary: Etkinlik bilgilerini güncelle
+      description: Sadece kulüp başkanı veya yardımcısı erişebilir
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Etkinlik ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateEventDto'
+      responses:
+        '200':
+          description: Etkinlik güncellendi
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Etkinlik güncellendi"
+                  data:
+                    $ref: '#/components/schemas/Event'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    delete:
+      tags:
+        - Events
+      summary: Etkinliği sil
+      description: Sadece kulüp başkanı erişebilir
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Etkinlik ID
+      responses:
+        '200':
+          description: Etkinlik silindi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /api/v1/events/{id}/publish:
+    post:
+      tags:
+        - Events
+      summary: Etkinliği yayınla
+      description: Taslak etkinliği yayına al
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Etkinlik ID
+      responses:
+        '200':
+          description: Etkinlik yayınlandı
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /api/v1/events/{id}/cancel:
+    post:
+      tags:
+        - Events
+      summary: Etkinliği iptal et
+      description: Yayınlanmış etkinliği iptal et
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Etkinlik ID
+      responses:
+        '200':
+          description: Etkinlik iptal edildi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /api/v1/events/{id}/qrcode:
+    get:
+      tags:
+        - Events
+      summary: Etkinlik için QR kod oluştur
+      description: TOTP tabanlı güvenli QR kod (30 saniye geçerli)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Etkinlik ID
+      responses:
+        '200':
+          description: QR kod oluşturuldu
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QRCodeResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /api/v1/events/{id}/attend:
+    post:
+      tags:
+        - Attendance
+      summary: Etkinliğe katıl (manuel)
+      description: Kullanıcı etkinliğe manuel olarak katılır
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Etkinlik ID
+      responses:
+        '201':
+          description: Etkinliğe katıldınız
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Etkinliğe katıldınız"
+                  data:
+                    $ref: '#/components/schemas/Attendance'
+        '400':
+          description: Kapasite dolu veya etkinlik kapalı
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          description: Zaten katılmışsınız
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/events/{id}/leave:
+    delete:
+      tags:
+        - Attendance
+      summary: Etkinlikten ayrıl
+      description: Kullanıcı etkinlikten ayrılır (başlamadan önce)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Etkinlik ID
+      responses:
+        '200':
+          description: Etkinlikten ayrıldınız
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Başlamış etkinlikten ayrılamazsınız
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /api/v1/events/{id}/attendees:
+    get:
+      tags:
+        - Attendance
+      summary: Etkinlik katılımcılarını listele
+      description: Etkinliğe katılan kullanıcıları getirir
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Etkinlik ID
+      responses:
+        '200':
+          description: Katılımcı listesi
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Attendance'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /api/v1/events/{id}/checkin/qr:
+    post:
+      tags:
+        - Attendance
+      summary: QR kod ile check-in
+      description: TOTP tabanlı QR kod doğrulama ile check-in
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Etkinlik ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CheckInQRDto'
+      responses:
+        '201':
+          description: QR kod ile check-in başarılı
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "QR kod ile check-in başarılı"
+                  data:
+                    $ref: '#/components/schemas/Attendance'
+        '400':
+          description: Geçersiz QR kod veya check-in zamanı dışında
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /api/v1/events/{id}/checkin/gps:
+    post:
+      tags:
+        - Attendance
+      summary: GPS ile check-in
+      description: Konum doğrulama ile check-in (100m içinde)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Etkinlik ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CheckInGPSDto'
+      responses:
+        '201':
+          description: GPS ile check-in başarılı
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "GPS ile check-in başarılı"
+                  data:
+                    $ref: '#/components/schemas/Attendance'
+        '400':
+          description: Çok uzaksınız veya GPS desteklenmiyor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /api/v1/attendances/me:
+    get:
+      tags:
+        - Attendance
+      summary: Kendi katılımlarımı listele
+      description: Kullanıcının katıldığı etkinlikleri getirir
+      responses:
+        '200':
+          description: Katılım listesi
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Attendance'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'

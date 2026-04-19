@@ -4,7 +4,10 @@ import { container } from './core/container/container';
 import { IdentityRouter } from './modules/identity/identity.router';
 import { ClubsRouter } from './modules/clubs/clubs.router';
 import { EventsRouter } from './modules/events/events.router';
+import { createAnalyticsRouter } from './modules/analytics/analytics.router';
+import { AnalyticsController } from './modules/analytics/controllers/analytics.controller';
 import { globalErrorFilter } from './core/filters/globalError.filter';
+import { setupSwagger } from './swagger';
 
 const app: Application = express();
 
@@ -18,6 +21,9 @@ app.use((req, res, next) => {
   next();
 });
 
+// Swagger Documentation
+setupSwagger(app as any);
+
 // Healthcheck
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'UP', message: 'ClubMS API is running' });
@@ -27,6 +33,12 @@ app.get('/health', (req, res) => {
 app.use('/api/v1', IdentityRouter);
 app.use('/api/v1', ClubsRouter);
 app.use('/api/v1', EventsRouter);
+
+// Analytics Router - container'dan service'i al
+const analyticsService = container.resolve('analyticsService') as any;
+const analyticsController = new AnalyticsController(analyticsService);
+const AnalyticsRouter = createAnalyticsRouter(analyticsController);
+app.use('/api/v1/analytics', AnalyticsRouter);
 
 // Global error handler - en sonda olmalı
 app.use(globalErrorFilter);

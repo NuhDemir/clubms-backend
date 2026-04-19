@@ -7,6 +7,8 @@ import { EventEntity } from '../domain/Event.entity';
 import { AppError } from '../../infrastructure/errors/AppError';
 import { IEventServicePublic } from '../interfaces/IEventServicePublic';
 import { IAttendanceRepository } from '../interfaces/IAttendanceRepository';
+import { QRCodeService } from './qrcode.service';
+import { domainEvents } from '../../notifications/listeners/event.listener';
 
 export interface CreateEventDto {
     clubId: string;
@@ -33,13 +35,17 @@ export interface UpdateEventDto {
 }
 
 export class EventsService implements IEventServicePublic {
+    private readonly qrCodeService: QRCodeService;
+
     constructor(
         private readonly eventRepository: IEventRepository,
         private readonly attendanceRepository: IAttendanceRepository,
         private readonly userRepository: IUserRepository,
         private readonly clubServicePublic: IClubServicePublic,
         private readonly membershipRepository: IMembershipRepository
-    ) { }
+    ) {
+        this.qrCodeService = new QRCodeService();
+    }
 
     // ==================== PUBLIC API (Cross-context) ====================
 
@@ -273,5 +279,59 @@ export class EventsService implements IEventServicePublic {
         await this.eventRepository.update(event);
 
         return event;
+    }
+
+    // ==================== QR CODE ====================
+
+    /**
+     * Etkinlik için QR kod oluştur
+     * Sadece kulüp yöneticileri (PRESIDENT, VICE_PRESIDENT) oluşturabilir
+     */
+    async generateEventQRCode(eventId: string, userId: string): Promise<{
+        qrCodeDataURL: string;
+        expiresIn: number;
+        eventTitle: string;
+    }> {
+        // 1. Etkinliği bul
+        const event = await this.eventRepository.findById(eventId);
+        if (!event) {
+            throw AppError.notFound('Etkinlik bulunamadı', 'EVENT_NOT_FOUND');
+        }
+
+        // 2. Yetki kontrolü - Kulübün yöneticisi olmalı
+        const membership = await this.membershipRepository.findByClubAndUser(
+            event.clubId,
+            userId
+        );
+
+        if (!membership || !membership.hasMinimumRole('VICE_PRESIDENT')) {
+            throw AppError.forbidden(
+                'Sadece kulüp yöneticileri QR kod oluşturabilir',
+                'NOT_CLUB_ADMIN'
+            );
+        }
+
+        // 3. Etkinlik durumu kontrolü
+        if (event.status !== 'PUBLISHED') {
+            throw AppError.badRequest(
+                'Sadece yayınlanmış etkinlikler için QR kod oluşturulabilir',
+                'EVENT_NOT_PUBLISHED'
+            );
+        }
+
+        // 4. QR kod oluştur
+        const qrCodeDataURL = await this.qrCodeService.generateQRCode(
+            event.id,
+            event.title
+        );
+
+        // 5. Kalan süreyi hesapla
+        const expiresIn = this.qrCodeService.getRemainingTime();
+
+        return {
+            qrCodeDataURL,
+            expiresIn,
+            eventTitle: event.title
+        };
     }
 }

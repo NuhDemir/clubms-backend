@@ -264,3 +264,34 @@ export const cancelEvent = async (
         next(error);
     }
 };
+
+export const generateQRCode = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+): Promise<void> => {
+    try {
+        if (!req.user) {
+            throw AppError.unauthorized('Kullanıcı bilgisi bulunamadı');
+        }
+
+        const eventId = req.params.id as string;
+        const eventsService = req.container.resolve<EventsService>('eventsService');
+        const userRepository = req.container.resolve<IUserRepository>('userRepository');
+
+        const user = await userRepository.findByFirebaseUid(req.user.uid);
+        if (!user) {
+            throw AppError.notFound('Kullanıcı bulunamadı', 'USER_NOT_FOUND');
+        }
+
+        const qrCodeData = await eventsService.generateEventQRCode(eventId, user.id);
+
+        res.status(200).json({
+            success: true,
+            message: 'QR kod oluşturuldu',
+            data: qrCodeData
+        });
+    } catch (error) {
+        next(error);
+    }
+};

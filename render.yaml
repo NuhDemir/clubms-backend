@@ -1,0 +1,90 @@
+services:
+  # PostgreSQL Database
+  - type: pserv
+    name: clubms-db
+    env: docker
+    plan: free
+    region: frankfurt
+    ipAllowList: []
+
+  # Redis Cache
+  - type: redis
+    name: clubms-redis
+    plan: free
+    region: frankfurt
+    maxmemoryPolicy: allkeys-lru
+    ipAllowList: []
+
+  # Backend API
+  - type: web
+    name: clubms-backend
+    env: node
+    region: frankfurt
+    plan: free
+    buildCommand: npm install && npx prisma generate && npm run build
+    startCommand: npm run start:prod
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      
+      - key: PORT
+        value: 10000
+      
+      - key: DATABASE_URL
+        fromDatabase:
+          name: clubms-db
+          property: connectionString
+      
+      - key: REDIS_HOST
+        fromService:
+          type: redis
+          name: clubms-redis
+          property: host
+      
+      - key: REDIS_PORT
+        fromService:
+          type: redis
+          name: clubms-redis
+          property: port
+      
+      - key: REDIS_PASSWORD
+        fromService:
+          type: redis
+          name: clubms-redis
+          property: password
+      
+      # Firebase credentials (add these in Render dashboard)
+      - key: FIREBASE_PROJECT_ID
+        sync: false
+      
+      - key: FIREBASE_PRIVATE_KEY
+        sync: false
+      
+      - key: FIREBASE_CLIENT_EMAIL
+        sync: false
+      
+      # QR Code Security
+      - key: QR_SECRET_BASE
+        generateValue: true
+      
+      # CORS
+      - key: CORS_ORIGIN
+        value: "*"
+    
+    autoDeploy: true
+    
+    # Health check configuration
+    healthCheck:
+      path: /health
+      interval: 30
+      timeout: 10
+      unhealthyThreshold: 3
+      healthyThreshold: 2
+
+databases:
+  - name: clubms-db
+    databaseName: clubms
+    user: clubms_user
+    plan: free
+    region: frankfurt

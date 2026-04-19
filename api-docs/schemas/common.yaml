@@ -1,0 +1,112 @@
+components:
+  schemas:
+    # ==================== COMMON SCHEMAS ====================
+    
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "İşlem başarılı"
+    
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: "ERROR_CODE"
+            message:
+              type: string
+              example: "Hata mesajı"
+    
+    PaginationParams:
+      type: object
+      properties:
+        page:
+          type: integer
+          minimum: 1
+          default: 1
+          description: Sayfa numarası
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 20
+          description: Sayfa başına kayıt sayısı
+    
+    PaginatedResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: array
+          items: {}
+        pagination:
+          type: object
+          properties:
+            page:
+              type: integer
+              example: 1
+            limit:
+              type: integer
+              example: 20
+            total:
+              type: integer
+              example: 100
+            totalPages:
+              type: integer
+              example: 5
+    
+    # ==================== ENUMS ====================
+    
+    GlobalRole:
+      type: string
+      enum:
+        - SUPER_ADMIN
+        - ADMIN
+        - USER
+      description: Global sistem rolleri
+    
+    ClubRole:
+      type: string
+      enum:
+        - PRESIDENT
+        - VICE_PRESIDENT
+        - MEMBER
+      description: Kulüp içi roller
+    
+    MembershipStatus:
+      type: string
+      enum:
+        - PENDING
+        - APPROVED
+        - REJECTED
+      description: Üyelik başvuru durumu
+    
+    EventStatus:
+      type: string
+      enum:
+        - DRAFT
+        - PUBLISHED
+        - CANCELLED
+        - COMPLETED
+      description: Etkinlik durumu
+    
+    CheckInMethod:
+      type: string
+      enum:
+        - MANUAL
+        - QR
+        - GPS
+      description: Check-in yöntemi

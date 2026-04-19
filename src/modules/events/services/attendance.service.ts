@@ -3,6 +3,7 @@ import { IEventRepository } from '../interfaces/IEventRepository';
 import { IUserRepository } from '../../identity/interfaces/IUserRepository';
 import { AttendanceEntity, CheckInMethod } from '../domain/Attendance.entity';
 import { AppError } from '../../infrastructure/errors/AppError';
+import { QRCodeService } from './qrcode.service';
 
 export interface AttendEventDto {
     eventId: string;
@@ -24,11 +25,15 @@ export interface CheckInGPSDto {
 }
 
 export class AttendanceService {
+    private readonly qrCodeService: QRCodeService;
+
     constructor(
         private readonly attendanceRepository: IAttendanceRepository,
         private readonly eventRepository: IEventRepository,
         private readonly userRepository: IUserRepository
-    ) { }
+    ) {
+        this.qrCodeService = new QRCodeService();
+    }
 
     // ==================== ATTENDANCE CRUD ====================
 
@@ -157,24 +162,24 @@ export class AttendanceService {
     // ==================== CHECK-IN METHODS ====================
 
     async checkInQR(dto: CheckInQRDto): Promise<AttendanceEntity> {
-        // 1. QR code validation (basit örnek - production'da JWT veya signed token kullanılmalı)
-        const expectedQRCode = `EVENT:${dto.eventId}`;
-        if (dto.qrCode !== expectedQRCode) {
-            throw AppError.badRequest('Geçersiz QR kod', 'INVALID_QR_CODE');
-        }
-
-        // 2. Etkinliği bul
+        // 1. Etkinliği bul
         const event = await this.eventRepository.findById(dto.eventId);
         if (!event) {
             throw AppError.notFound('Etkinlik bulunamadı', 'EVENT_NOT_FOUND');
         }
 
-        // 3. Check-in zamanı kontrolü
+        // 2. Check-in zamanı kontrolü
         if (!event.canCheckIn()) {
             throw AppError.badRequest(
                 'Check-in zamanı dışında (30 dk önce - bitiş saati)',
                 'CHECKIN_TIME_INVALID'
             );
+        }
+
+        // 3. TOTP tabanlı QR kod doğrulama (async)
+        const isValid = await this.qrCodeService.verifyQRCode(dto.qrCode, dto.eventId);
+        if (!isValid) {
+            throw AppError.badRequest('Geçersiz veya süresi dolmuş QR kod', 'INVALID_QR_CODE');
         }
 
         // 4. Katılım kaydı oluştur

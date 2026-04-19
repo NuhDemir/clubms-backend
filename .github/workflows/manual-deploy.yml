@@ -1,0 +1,76 @@
+name: Manual Deploy to Render
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - staging
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Trigger Render Deploy
+        run: |
+          echo "🚀 Triggering manual deployment to ${{ inputs.environment }}..."
+          
+          # Render Deploy Hook'u tetikle
+          curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+          
+          echo "✅ Deploy hook triggered successfully"
+      
+      - name: Wait for deployment
+        run: |
+          echo "⏳ Waiting 90 seconds for deployment to complete..."
+          sleep 90
+      
+      - name: Health check
+        run: |
+          echo "🏥 Checking service health..."
+          
+          max_attempts=15
+          attempt=0
+          
+          while [ $attempt -lt $max_attempts ]; do
+            response=$(curl -s -o /dev/null -w "%{http_code}" ${{ secrets.RENDER_SERVICE_URL }}/health || echo "000")
+            
+            if [ "$response" = "200" ]; then
+              echo "✅ Service is healthy! (HTTP $response)"
+              
+              # API Docs kontrolü
+              docs_response=$(curl -s -o /dev/null -w "%{http_code}" ${{ secrets.RENDER_SERVICE_URL }}/api-docs || echo "000")
+              echo "📚 API Docs: HTTP $docs_response"
+              
+              exit 0
+            fi
+            
+            attempt=$((attempt + 1))
+            echo "⏳ Attempt $attempt/$max_attempts - Service returned HTTP $response, retrying in 10s..."
+            sleep 10
+          done
+          
+          echo "❌ Service health check failed after $max_attempts attempts"
+          exit 1
+      
+      - name: Deployment summary
+        if: success()
+        run: |
+          echo "🎉 Manual deployment to ${{ inputs.environment }} completed!"
+          echo ""
+          echo "📊 Service Information:"
+          echo "  - Environment: ${{ inputs.environment }}"
+          echo "  - API URL: ${{ secrets.RENDER_SERVICE_URL }}"
+          echo "  - API Docs: ${{ secrets.RENDER_SERVICE_URL }}/api-docs"
+          echo "  - Health: ${{ secrets.RENDER_SERVICE_URL }}/health"
+          echo ""
+          echo "🔗 Monitor at: https://dashboard.render.com"

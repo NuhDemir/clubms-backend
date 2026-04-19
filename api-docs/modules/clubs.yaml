@@ -1,0 +1,430 @@
+paths:
+  /api/v1/clubs:
+    get:
+      tags:
+        - Clubs
+      summary: Tüm kulüpleri listele
+      description: Aktif kulüpleri getirir
+      security: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: Kulüp listesi
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Club'
+
+    post:
+      tags:
+        - Clubs
+      summary: Yeni kulüp oluştur
+      description: Sadece ADMIN veya SUPER_ADMIN erişebilir
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateClubDto'
+      responses:
+        '201':
+          description: Kulüp oluşturuldu
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Kulüp oluşturuldu"
+                  data:
+                    $ref: '#/components/schemas/Club'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+
+  /api/v1/clubs/{id}:
+    get:
+      tags:
+        - Clubs
+      summary: Kulüp detayı
+      description: Belirli bir kulübün bilgilerini getirir
+      security: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Kulüp ID
+      responses:
+        '200':
+          description: Kulüp bilgisi
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Club'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    patch:
+      tags:
+        - Clubs
+      summary: Kulüp bilgilerini güncelle
+      description: Sadece kulüp başkanı veya ADMIN erişebilir
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Kulüp ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateClubDto'
+      responses:
+        '200':
+          description: Kulüp güncellendi
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Kulüp güncellendi"
+                  data:
+                    $ref: '#/components/schemas/Club'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    delete:
+      tags:
+        - Clubs
+      summary: Kulübü sil (soft delete)
+      description: Sadece SUPER_ADMIN erişebilir
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Kulüp ID
+      responses:
+        '200':
+          description: Kulüp silindi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /api/v1/clubs/{id}/members:
+    get:
+      tags:
+        - Memberships
+      summary: Kulüp üyelerini listele
+      description: Onaylanmış üyeleri getirir
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Kulüp ID
+      responses:
+        '200':
+          description: Üye listesi
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Membership'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    post:
+      tags:
+        - Memberships
+      summary: Kulübe üyelik başvurusu yap
+      description: Kullanıcı kulübe katılma isteği gönderir
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Kulüp ID
+      responses:
+        '201':
+          description: Başvuru gönderildi
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Üyelik başvurusu gönderildi"
+                  data:
+                    $ref: '#/components/schemas/Membership'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          description: Zaten üye veya bekleyen başvuru var
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/clubs/{id}/members/pending:
+    get:
+      tags:
+        - Memberships
+      summary: Bekleyen üyelik başvurularını listele
+      description: Sadece kulüp başkanı veya yardımcısı erişebilir
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Kulüp ID
+      responses:
+        '200':
+          description: Bekleyen başvurular
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Membership'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /api/v1/clubs/{clubId}/members/{userId}/approve:
+    post:
+      tags:
+        - Memberships
+      summary: Üyelik başvurusunu onayla
+      description: Sadece kulüp başkanı veya yardımcısı erişebilir
+      parameters:
+        - in: path
+          name: clubId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Kulüp ID
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Kullanıcı ID
+      responses:
+        '200':
+          description: Başvuru onaylandı
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /api/v1/clubs/{clubId}/members/{userId}/reject:
+    post:
+      tags:
+        - Memberships
+      summary: Üyelik başvurusunu reddet
+      description: Sadece kulüp başkanı veya yardımcısı erişebilir
+      parameters:
+        - in: path
+          name: clubId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Kulüp ID
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Kullanıcı ID
+      responses:
+        '200':
+          description: Başvuru reddedildi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /api/v1/clubs/{clubId}/members/{userId}/role:
+    patch:
+      tags:
+        - Memberships
+      summary: Üye rolünü değiştir
+      description: Sadece kulüp başkanı erişebilir
+      parameters:
+        - in: path
+          name: clubId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Kulüp ID
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Kullanıcı ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangeRoleDto'
+      responses:
+        '200':
+          description: Rol değiştirildi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /api/v1/clubs/{clubId}/members/{userId}:
+    delete:
+      tags:
+        - Memberships
+      summary: Kulüpten ayrıl veya üyeyi çıkar
+      description: Kullanıcı kendi çıkabilir veya başkan başkasını çıkarabilir
+      parameters:
+        - in: path
+          name: clubId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Kulüp ID
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Kullanıcı ID
+      responses:
+        '200':
+          description: Üyelik sonlandırıldı
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'

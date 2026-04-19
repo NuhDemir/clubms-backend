@@ -6,7 +6,8 @@ import {
     getEventById,
     updateEvent,
     publishEvent,
-    cancelEvent
+    cancelEvent,
+    generateQRCode
 } from './controllers/events.controller';
 import {
     attendEvent,
@@ -45,6 +46,9 @@ router.patch('/events/:id/publish', authMiddleware, publishEvent);
 
 // PATCH /api/v1/events/:id/cancel - İptal (CLUB_PRESIDENT)
 router.patch('/events/:id/cancel', authMiddleware, cancelEvent);
+
+// GET /api/v1/events/:id/qrcode - QR kod oluştur (CLUB_ADMIN)
+router.get('/events/:id/qrcode', authMiddleware, generateQRCode);
 
 // ==================== ATTENDANCE ROUTES ====================
 

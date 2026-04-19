@@ -1,0 +1,119 @@
+components:
+  schemas:
+    # ==================== ANALYTICS SCHEMAS ====================
+    
+    GlobalSnapshot:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        date:
+          type: string
+          format: date
+          example: "2024-01-01"
+        totalUsers:
+          type: integer
+          example: 1000
+        totalClubs:
+          type: integer
+          example: 50
+        totalEvents:
+          type: integer
+          example: 200
+        activeUsers:
+          type: integer
+          example: 750
+        createdAt:
+          type: string
+          format: date-time
+          example: "2024-01-01T02:00:00.000Z"
+    
+    ClubSnapshot:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        clubId:
+          type: string
+          format: uuid
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        date:
+          type: string
+          format: date
+          example: "2024-01-01"
+        memberCount:
+          type: integer
+          example: 50
+        eventCount:
+          type: integer
+          example: 10
+        totalAttendance:
+          type: integer
+          example: 250
+        avgAttendanceRate:
+          type: number
+          format: double
+          example: 0.75
+        createdAt:
+          type: string
+          format: date-time
+          example: "2024-01-01T02:00:00.000Z"
+    
+    EventSnapshot:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        eventId:
+          type: string
+          format: uuid
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        date:
+          type: string
+          format: date
+          example: "2024-01-01"
+        attendeeCount:
+          type: integer
+          example: 45
+        capacity:
+          type: integer
+          nullable: true
+          example: 100
+        attendanceRate:
+          type: number
+          format: double
+          nullable: true
+          example: 0.45
+        qrCheckIns:
+          type: integer
+          example: 30
+        gpsCheckIns:
+          type: integer
+          example: 10
+        manualCheckIns:
+          type: integer
+          example: 5
+        createdAt:
+          type: string
+          format: date-time
+          example: "2024-01-01T02:00:00.000Z"
+    
+    DateRangeParams:
+      type: object
+      properties:
+        startDate:
+          type: string
+          format: date
+          example: "2024-01-01"
+          description: Başlangıç tarihi (YYYY-MM-DD)
+        endDate:
+          type: string
+          format: date
+          example: "2024-12-31"
+          description: Bitiş tarihi (YYYY-MM-DD)

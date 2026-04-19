@@ -1,0 +1,313 @@
+paths:
+  /api/v1/analytics/global:
+    get:
+      tags:
+        - Analytics
+      summary: Global sistem istatistikleri
+      description: Sadece ADMIN veya SUPER_ADMIN erişebilir
+      parameters:
+        - in: query
+          name: startDate
+          schema:
+            type: string
+            format: date
+          description: Başlangıç tarihi (YYYY-MM-DD)
+        - in: query
+          name: endDate
+          schema:
+            type: string
+            format: date
+          description: Bitiş tarihi (YYYY-MM-DD)
+      responses:
+        '200':
+          description: Global istatistikler
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/GlobalSnapshot'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+
+  /api/v1/analytics/global/latest:
+    get:
+      tags:
+        - Analytics
+      summary: En son global snapshot
+      description: Sadece ADMIN veya SUPER_ADMIN erişebilir
+      responses:
+        '200':
+          description: En son snapshot
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/GlobalSnapshot'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /api/v1/analytics/clubs/{clubId}:
+    get:
+      tags:
+        - Analytics
+      summary: Kulüp istatistikleri
+      description: Kulüp başkanı veya ADMIN erişebilir
+      parameters:
+        - in: path
+          name: clubId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Kulüp ID
+        - in: query
+          name: startDate
+          schema:
+            type: string
+            format: date
+          description: Başlangıç tarihi (YYYY-MM-DD)
+        - in: query
+          name: endDate
+          schema:
+            type: string
+            format: date
+          description: Bitiş tarihi (YYYY-MM-DD)
+      responses:
+        '200':
+          description: Kulüp istatistikleri
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ClubSnapshot'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /api/v1/analytics/clubs/{clubId}/latest:
+    get:
+      tags:
+        - Analytics
+      summary: Kulübün en son snapshot'ı
+      description: Kulüp başkanı veya ADMIN erişebilir
+      parameters:
+        - in: path
+          name: clubId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Kulüp ID
+      responses:
+        '200':
+          description: En son snapshot
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/ClubSnapshot'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /api/v1/analytics/clubs/{clubId}/growth:
+    get:
+      tags:
+        - Analytics
+      summary: Kulüp büyüme analizi
+      description: Üye sayısı ve etkinlik trendleri
+      parameters:
+        - in: path
+          name: clubId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Kulüp ID
+        - in: query
+          name: startDate
+          schema:
+            type: string
+            format: date
+          description: Başlangıç tarihi (YYYY-MM-DD)
+        - in: query
+          name: endDate
+          schema:
+            type: string
+            format: date
+          description: Bitiş tarihi (YYYY-MM-DD)
+      responses:
+        '200':
+          description: Büyüme analizi
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      memberGrowth:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            date:
+                              type: string
+                              format: date
+                            count:
+                              type: integer
+                      eventGrowth:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            date:
+                              type: string
+                              format: date
+                            count:
+                              type: integer
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /api/v1/analytics/events/{eventId}:
+    get:
+      tags:
+        - Analytics
+      summary: Etkinlik istatistikleri
+      description: Kulüp başkanı veya ADMIN erişebilir
+      parameters:
+        - in: path
+          name: eventId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Etkinlik ID
+      responses:
+        '200':
+          description: Etkinlik istatistikleri
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/EventSnapshot'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /api/v1/analytics/events/{eventId}/checkin-methods:
+    get:
+      tags:
+        - Analytics
+      summary: Etkinlik check-in yöntemleri dağılımı
+      description: QR, GPS, Manuel check-in istatistikleri
+      parameters:
+        - in: path
+          name: eventId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Etkinlik ID
+      responses:
+        '200':
+          description: Check-in dağılımı
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      qr:
+                        type: integer
+                        example: 30
+                      gps:
+                        type: integer
+                        example: 10
+                      manual:
+                        type: integer
+                        example: 5
+                      total:
+                        type: integer
+                        example: 45
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /api/v1/analytics/snapshot/trigger:
+    post:
+      tags:
+        - Analytics
+      summary: Manuel snapshot oluştur
+      description: Sadece SUPER_ADMIN erişebilir (cron job dışında)
+      responses:
+        '200':
+          description: Snapshot oluşturuldu
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'

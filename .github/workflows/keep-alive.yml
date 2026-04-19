@@ -1,0 +1,53 @@
+name: Keep Render Service Alive
+
+on:
+  schedule:
+    # Her 10 dakikada bir çalışır (Render free tier 15 dakika sonra uyur)
+    - cron: '*/10 * * * *'
+  
+  workflow_dispatch: # Manuel tetikleme için
+
+jobs:
+  ping-service:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Ping Health Endpoint
+        run: |
+          echo "🏓 Pinging ClubMS API..."
+          
+          # Health check endpoint'ini ping et
+          response=$(curl -s -o /dev/null -w "%{http_code}" ${{ secrets.RENDER_SERVICE_URL }}/health)
+          
+          if [ $response -eq 200 ]; then
+            echo "✅ Service is alive! (HTTP $response)"
+          else
+            echo "⚠️ Service returned HTTP $response"
+            exit 1
+          fi
+      
+      - name: Ping API Docs
+        run: |
+          echo "📚 Checking API documentation..."
+          
+          # Swagger endpoint'ini kontrol et
+          response=$(curl -s -o /dev/null -w "%{http_code}" ${{ secrets.RENDER_SERVICE_URL }}/api-docs)
+          
+          if [ $response -eq 200 ] || [ $response -eq 301 ] || [ $response -eq 302 ]; then
+            echo "✅ API Docs accessible! (HTTP $response)"
+          else
+            echo "⚠️ API Docs returned HTTP $response"
+          fi
+      
+      - name: Log Timestamp
+        run: |
+          echo "⏰ Keep-alive ping completed at $(date -u +"%Y-%m-%d %H:%M:%S UTC")"
+      
+      - name: Notify on Failure
+        if: failure()
+        run: |
+          echo "❌ Keep-alive check failed!"
+          echo "Service might be down or experiencing issues."

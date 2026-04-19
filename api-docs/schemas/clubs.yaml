@@ -1,0 +1,124 @@
+components:
+  schemas:
+    # ==================== CLUB SCHEMAS ====================
+    
+    Club:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        name:
+          type: string
+          example: "Bilgisayar Kulübü"
+        slug:
+          type: string
+          example: "bilgisayar-kulubu"
+        description:
+          type: string
+          example: "Üniversite bilgisayar kulübü"
+        logoUrl:
+          type: string
+          format: uri
+          nullable: true
+          example: "https://example.com/logo.jpg"
+        foundedAt:
+          type: string
+          format: date-time
+          example: "2020-01-01T00:00:00.000Z"
+        isActive:
+          type: boolean
+          example: true
+        memberCount:
+          type: integer
+          example: 50
+        createdAt:
+          type: string
+          format: date-time
+          example: "2024-01-01T00:00:00.000Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2024-01-01T00:00:00.000Z"
+    
+    CreateClubDto:
+      type: object
+      required:
+        - name
+        - description
+      properties:
+        name:
+          type: string
+          minLength: 3
+          maxLength: 100
+          example: "Bilgisayar Kulübü"
+        description:
+          type: string
+          minLength: 10
+          maxLength: 1000
+          example: "Üniversite bilgisayar kulübü"
+        logoUrl:
+          type: string
+          format: uri
+          nullable: true
+          example: "https://example.com/logo.jpg"
+        foundedAt:
+          type: string
+          format: date-time
+          nullable: true
+          example: "2020-01-01T00:00:00.000Z"
+    
+    UpdateClubDto:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 3
+          maxLength: 100
+          example: "Bilgisayar Kulübü"
+        description:
+          type: string
+          minLength: 10
+          maxLength: 1000
+          example: "Üniversite bilgisayar kulübü"
+        logoUrl:
+          type: string
+          format: uri
+          nullable: true
+          example: "https://example.com/logo.jpg"
+    
+    # ==================== MEMBERSHIP SCHEMAS ====================
+    
+    Membership:
+      type: object
+      properties:
+        clubId:
+          type: string
+          format: uuid
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        userId:
+          type: string
+          format: uuid
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        role:
+          $ref: '#/components/schemas/ClubRole'
+        status:
+          $ref: '#/components/schemas/MembershipStatus'
+        joinedAt:
+          type: string
+          format: date-time
+          nullable: true
+          example: "2024-01-01T00:00:00.000Z"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2024-01-01T00:00:00.000Z"
+    
+    ChangeRoleDto:
+      type: object
+      required:
+        - role
+      properties:
+        role:
+          $ref: '#/components/schemas/ClubRole'
