@@ -27,6 +27,27 @@ Bu dokümantasyon, ClubMS Backend API'sini Render'a deploy etme adımlarını i�
 
 Render Dashboard'da her servis için environment variables ekleyin:
 
+### Redis Configuration (CRITICAL!)
+
+**For Upstash Redis:**
+1. Upstash Dashboard > Your Redis instance
+2. Configuration section
+3. **"Eviction" option MUST be DISABLED**
+4. If enabled, disable it and save
+
+**For Render Redis:**
+1. Render Dashboard > Redis instance
+2. Settings > Advanced
+3. Eviction Policy: Select **"noeviction"**
+4. Save changes
+
+**Why?** BullMQ uses Redis for job queues. If Redis evicts keys, jobs will be lost. With eviction disabled, Redis will return errors when full instead of silently dropping data.
+
+**Upstash Free Tier Limits:**
+- Storage: 256 MB (monitor usage regularly)
+- Commands: 10,000/sec
+- Bandwidth: 50 GB/month
+
 ### Backend Service (clubms-backend)
 
 **Otomatik Eklenenler:**
