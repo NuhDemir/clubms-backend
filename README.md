@@ -493,24 +493,3 @@ chore: Bakım işleri
 
 MIT License - Detaylar için [LICENSE](LICENSE) dosyasına bakın.
 
-## 👥 Ekip
-
-ClubMS Team - [support@clubms.com](mailto:support@clubms.com)
-
-## 🙏 Teşekkürler
-
-- Firebase Team
-- Prisma Team
-- Express.js Community
-- Open Source Contributors
-
----
-
-**Geliştirme Durumu:** ✅ Faz 7 Tamamlandı (QR & GPS Check-in + Security)
-
-**Sonraki Adımlar:**
-- [ ] Unit Tests (Jest)
-- [ ] Integration Tests
-- [ ] Docker Configuration
-- [ ] CI/CD Pipeline
-- [ ] Performance Optimization
